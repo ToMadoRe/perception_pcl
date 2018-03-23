@@ -71,6 +71,7 @@ class PointCloudToPCD
     std::string prefix_;
     bool binary_;
     bool compressed_;
+    bool single_shot_;
     std::string fixed_frame_;
     tf2_ros::Buffer tf_buffer_;
     tf2_ros::TransformListener tf_listener_;
@@ -129,6 +130,12 @@ class PointCloudToPCD
 	  writer.writeASCII (ss.str (), *cloud, v, q, 8);
 	}
 
+
+      if(single_shot_)
+	{
+	  sub_.shutdown();
+          exit(0);
+	}
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +156,7 @@ class PointCloudToPCD
       priv_nh.getParam ("fixed_frame", fixed_frame_);
       priv_nh.getParam ("binary", binary_);
       priv_nh.getParam ("compressed", compressed_);
+      priv_nh.getParam ("single", single_shot_);
       if(binary_)
 	{
 	  if(compressed_)
@@ -163,6 +171,11 @@ class PointCloudToPCD
       else
 	{
 	  ROS_INFO_STREAM ("Saving as binary PCD");
+	}
+
+      if(single_shot_)
+	{
+	  ROS_INFO_STREAM ("Saving only a single frame");
 	}
 
       cloud_topic_ = "input";
